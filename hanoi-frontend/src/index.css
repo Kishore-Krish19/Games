@@ -1,0 +1,248 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+input {
+  padding: 10px;
+  width: 250px;
+  border-radius: 6px;
+  border: none;
+  margin: 5px;
+}
+
+button {
+  padding: 10px 25px;
+  border-radius: 6px;
+  border: none;
+  background: #22c55e;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #16a34a;
+}
+/* --- HANOI GAME FIX --- */
+
+.game {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 80px;
+  margin-top: 40px;
+}
+
+.tower {
+  width: 180px;
+  height: 340px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  padding-bottom: 14px;
+  position: relative;
+
+  cursor: pointer;
+}
+
+.pole {
+  position: absolute;
+  bottom: 26px;
+  width: 6px;
+  height: 220px;
+  background: #facc15;
+}
+
+.base {
+  width: 120px;
+  height: 12px;
+  background: #facc15;
+  border-radius: 8px;
+  margin-top: 6px;
+}
+
+.disk {
+  height: 18px;
+  margin: 4px 0;
+  border-radius: 8px;
+  max-width: 95%;
+}
+
+.disk[data-size="1"] { background: #22c55e; }
+.disk[data-size="2"] { background: #3b82f6; }
+.disk[data-size="3"] { background: #6366f1; }
+.disk[data-size="4"] { background: #8b5cf6; }
+.disk[data-size="5"] { background: #ec4899; }
+.disk[data-size="6"] { background: #f97316; }
+.disk[data-size="7"] { background: #ef4444; }
+
+.goal {
+  border-color: #facc15;
+  box-shadow: 0 0 25px rgba(250, 204, 21, 0.35);
+}
+
+.selected {
+  outline: 3px solid #facc15;
+}
+/* ===== NAVBAR ===== */
+
+.navbar {
+  background: #020617;
+  padding: 14px 25px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  border-bottom: 1px solid #1e293b;
+}
+
+.logo {
+  color: #38bdf8;
+  font-weight: bold;
+}
+
+.nav-links {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+.nav-links a {
+  color: #e5e7eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.nav-links a:hover {
+  color: #38bdf8;
+}
+
+.nav-links button {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+
+/* ===== MAIN ===== */
+
+.main {
+  padding: 25px;
+}
+
+/* ===== BUTTON ANIMATIONS ===== */
+
+button {
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+/* ===== SKELETON ===== */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #1e293b 25%,
+    #334155 37%,
+    #1e293b 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton 1.4s ease infinite;
+  border-radius: 6px;
+}
+
+@keyframes skeleton {
+  0% { background-position: 100% 0 }
+  100% { background-position: -100% 0 }
+}
+.countdown {
+  font-size: 28px;
+  color: #facc15;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1 }
+  50% { opacity: 0.5 }
+  100% { opacity: 1 }
+}
