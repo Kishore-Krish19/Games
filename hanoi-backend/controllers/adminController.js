@@ -6,7 +6,6 @@ exports.getPlayers = (req, res) => {
     SELECT 
      u.id,
      u.username,
-     u.email,
      u.role,
      u.is_banned,
      COUNT(g.id) AS games,

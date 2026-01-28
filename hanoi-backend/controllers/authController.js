@@ -5,10 +5,10 @@ const jwt = require("jsonwebtoken");
 // REGISTER
 exports.register = async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const { username, password } = req.body;
 
         // Validate
-        if (!username || !email || !password) {
+        if (!username || !password) {
             return res.status(400).json({
                 message: "All fields are required"
             });
@@ -16,8 +16,8 @@ exports.register = async (req, res) => {
 
         // Check existing user
         db.query(
-            "SELECT id FROM users WHERE email = ?",
-            [email],
+            "SELECT id FROM users WHERE username = ?",
+            [username],
             async (err, result) => {
                 if (err) return res.status(500).json(err);
 
@@ -32,8 +32,8 @@ exports.register = async (req, res) => {
 
                 // Insert
                 db.query(
-                    "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
-                    [username, email, hash],
+                    "INSERT INTO users (username, password_hash) VALUES (?, ?)",
+                    [username, hash],
                     (err) => {
                         if (err) return res.status(500).json(err);
 
@@ -52,11 +52,11 @@ exports.register = async (req, res) => {
 // LOGIN
 exports.login = (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { username, password } = req.body;
 
     db.query(
-      "SELECT * FROM users WHERE email = ?",
-      [email],
+      "SELECT * FROM users WHERE username = ?",
+      [username],
       async (err, result) => {
         if (err) return res.status(500).json(err);
 
@@ -103,7 +103,6 @@ exports.login = (req, res) => {
           user: {
             id: user.id,
             username: user.username,
-            email: user.email,
             role: user.role
           }
         });
@@ -114,40 +113,3 @@ exports.login = (req, res) => {
     res.status(500).json(err.message);
   }
 };
-
-// exports.register = (req, res) => {
-//   const { username, email, password } = req.body;
-
-//   if (!username || !email || !password) {
-//     return res.status(400).json({
-//       message: "All fields required"
-//     });
-//   }
-
-//   db.query(
-//     "SELECT id FROM users WHERE email=?",
-//     [email],
-//     (err, exist) => {
-//       if (exist.length) {
-//         return res.status(400).json({
-//           message: "Email already exists"
-//         });
-//       }
-
-//       bcrypt.hash(password, 10, (err, hash) => {
-//         db.query(
-//           `
-//           INSERT INTO users (username, email, password, role)
-//           VALUES (?, ?, ?, 'player')
-//           `,
-//           [username, email, hash],
-//           (err) => {
-//             if (err) return res.status(500).json(err);
-
-//             res.json({ message: "Registered successfully" });
-//           }
-//         );
-//       });
-//     }
-//   );
-// };

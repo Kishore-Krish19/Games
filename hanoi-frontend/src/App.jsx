@@ -32,6 +32,7 @@ export default function App() {
       <Routes location={location} key={location.pathname}>
 
         <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         <Route
           path="/game"

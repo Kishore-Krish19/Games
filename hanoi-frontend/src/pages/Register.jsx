@@ -5,7 +5,6 @@ const API = "http://localhost:5000";
 
 export default function Register() {
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const nav = useNavigate();
@@ -20,7 +19,6 @@ export default function Register() {
       },
       body: JSON.stringify({
         username,
-        email,
         password
       })
     });
@@ -46,15 +44,6 @@ export default function Register() {
           placeholder="Username"
           required
           onChange={(e) => setUsername(e.target.value)}
-        />
-
-        <br /><br />
-
-        <input
-          type="email"
-          placeholder="Email"
-          required
-          onChange={(e) => setEmail(e.target.value)}
         />
 
         <br /><br />

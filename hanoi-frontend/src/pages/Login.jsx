@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const API = "http://localhost:5000";
 
 export default function Login() {
-    const [email, setEmail] = useState("");
+    const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
     const navigate = useNavigate();
@@ -17,7 +18,7 @@ export default function Login() {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify({ username, password })
         });
 
         const data = await res.json();
@@ -47,11 +48,9 @@ export default function Login() {
             <form onSubmit={handleLogin}>
 
                 <input
-                    type="email"
-                    placeholder="Email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                 />
 
                 <br /><br />
@@ -69,10 +68,10 @@ export default function Login() {
                 <button type="submit">
                     Login
                 </button>
-                <br /><br />   
-                <p>
+                <br /><br />
+                <p style={{ marginTop: "15px" }}>
                     New player?{" "}
-                    <a href="/register">Register here</a>
+                    <Link to="/register">Register here</Link>
                 </p>
 
             </form>
