@@ -4,6 +4,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 package-lock.json
+package.json
 .pnpm-debug.log
 
 # Build output

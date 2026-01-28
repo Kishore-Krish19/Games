@@ -41,41 +41,42 @@ export default function Login() {
     }
 
     return (
-        <div className="app">
 
-            <h2>Hanoi Game Login</h2>
+        <div className="main">
+            <div className="center-card">
+                <h2>Hanoi Game Login</h2>
 
-            <form onSubmit={handleLogin}>
+                <form onSubmit={handleLogin}>
 
-                <input
-                    placeholder="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                />
+                    <input
+                        placeholder="Username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                    />
 
-                <br /><br />
+                    <br /><br />
 
-                <input
-                    type="password"
-                    placeholder="Password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
 
-                <br /><br />
+                    <br /><br />
 
-                <button type="submit">
-                    Login
-                </button>
-                <br /><br />
-                <p style={{ marginTop: "15px" }}>
-                    New player?{" "}
-                    <Link to="/register">Register here</Link>
-                </p>
+                    <button type="submit">
+                        Login
+                    </button>
+                    <br /><br />
+                    <p style={{ marginTop: "15px" }}>
+                        New player?{" "}
+                        <Link to="/register">Register here</Link>
+                    </p>
 
-            </form>
-
+                </form>
+            </div>
         </div>
     );
 }

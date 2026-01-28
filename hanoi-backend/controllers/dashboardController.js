@@ -1,6 +1,6 @@
 const db = require("../config/db");
 
-exports.getStats = (req, res) => {
+exports.getStats = async (req, res) => {
   const userId = req.user.id;
 
   const sql = `
@@ -14,9 +14,11 @@ exports.getStats = (req, res) => {
       AND score IS NOT NULL
   `;
 
-  db.query(sql, [userId], (err, result) => {
-    if (err) return res.status(500).json(err);
-
+  try {
+    const [result] = await db.query(sql, [userId]);
     res.json(result[0]);
-  });
+  } catch (err) {
+    console.error("Dashboard Stats Error:", err);
+    res.status(500).json({ error: err.message });
+  }
 };

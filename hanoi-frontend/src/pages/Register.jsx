@@ -4,63 +4,65 @@ import { useNavigate } from "react-router-dom";
 const API = "http://localhost:5000";
 
 export default function Register() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
 
-  const nav = useNavigate();
+    const nav = useNavigate();
 
-  async function handleRegister(e) {
-    e.preventDefault();
+    async function handleRegister(e) {
+        e.preventDefault();
 
-    const res = await fetch(API + "/api/auth/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        username,
-        password
-      })
-    });
+        const res = await fetch(API + "/api/auth/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                username,
+                password
+            })
+        });
 
-    const data = await res.json();
+        const data = await res.json();
 
-    if (res.ok) {
-      alert("Registered! Please login.");
-      nav("/");
-    } else {
-      alert(data.message);
+        if (res.ok) {
+            alert("Registered! Please login.");
+            nav("/");
+        } else {
+            alert(data.message);
+        }
     }
-  }
 
-  return (
-    <div className="app">
+    return (
+        <div className="main">
+            <div className="center-card">
+                <div className="page-wrapper">
+                    <h2>Register</h2>
 
-      <h2>Register</h2>
+                    <form onSubmit={handleRegister}>
 
-      <form onSubmit={handleRegister}>
+                        <input
+                            placeholder="Username"
+                            required
+                            onChange={(e) => setUsername(e.target.value)}
+                        />
 
-        <input
-          placeholder="Username"
-          required
-          onChange={(e) => setUsername(e.target.value)}
-        />
+                        <br /><br />
 
-        <br /><br />
+                        <input
+                            type="password"
+                            placeholder="Password"
+                            required
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
 
-        <input
-          type="password"
-          placeholder="Password"
-          required
-          onChange={(e) => setPassword(e.target.value)}
-        />
+                        <br /><br />
 
-        <br /><br />
+                        <button>Register</button>
 
-        <button>Register</button>
-
-      </form>
-
-    </div>
-  );
+                    </form>
+                </div>
+            </div>
+        </div>
+    );
 }

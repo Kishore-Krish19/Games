@@ -15,8 +15,25 @@ function Tower({ disks, onClick, selected, isGoal }) {
         <div
             className={`tower ${selected ? "selected" : ""} ${isGoal ? "goal" : ""}`}
             onClick={onClick}
+            style={{ position: "relative" }} // Ensure relative positioning for absolute child
         >
-            {isGoal && <div className="goal-label">GOAL</div>}
+            {/* GOAL Label repositioned to top center above the tower box */}
+            {isGoal && (
+                <div
+                    className="goal-label"
+                    style={{
+                        position: "absolute",
+                        top: "-40px",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        fontWeight: "bold",
+                        color: "#facc15",
+                        whiteSpace: "nowrap"
+                    }}
+                >
+                    GOAL
+                </div>
+            )}
 
             <div className="base" />
 
@@ -53,7 +70,7 @@ export default function Game() {
     const [timeLeft, setTimeLeft] = useState(300);
     const [canPlay, setCanPlay] = useState(false);
     const [tournament, setTournament] = useState(null);
-
+    const [hasPlayedThisRound, setHasPlayedThisRound] = useState(false);
     const token = localStorage.getItem("token");
 
     /* ---------- Init Towers ---------- */
@@ -62,19 +79,13 @@ export default function Game() {
         [],
         []
     ];
-    // Helper to format time
-    function formatTime(seconds) {
 
+    function formatTime(seconds) {
         const m = Math.floor(seconds / 60);
         const s = seconds % 60;
-
-        return (
-            m.toString().padStart(2, "0") +
-            ":" +
-            s.toString().padStart(2, "0")
-        );
+        return m.toString().padStart(2, "0") + ":" + s.toString().padStart(2, "0");
     }
-    /* ---------- Load Disk Count (Admin Controlled Later) ---------- */
+
     useEffect(() => {
         fetch(API + "/api/config")
             .then((r) => r.json())
@@ -91,50 +102,27 @@ export default function Game() {
         setHasWon(false);
         setSelectedTower(null);
     }
-    /* ---------- Load Tournament Info ---------- */
+
     useEffect(() => {
-
         async function loadTournament() {
-
             const res = await fetch(API + "/api/tournament");
             const data = await res.json();
-
-            console.log("Tournament:", data);
-
             setTournament(data);
         }
-
         loadTournament();
-
     }, []);
-    /* ---------- Tournament Status Logic ---------- */
+
     useEffect(() => {
-
-        // No tournament → lock
-        if (!tournament) {
+        if (!tournament || tournament.status === "ended") {
             setCanPlay(false);
             return;
         }
 
-        // Tournament ended → lock
-        if (tournament.status === "ended") {
-            setCanPlay(false);
-            return;
-        }
-
-        // Tournament pending → countdown
         if (tournament.status === "pending") {
-
-            if (!tournament.start_time) {
-                setCanPlay(false);
-                return;
-            }
-
             const timer = setInterval(() => {
-
-                const diff = Math.floor(
-                    (new Date(tournament.start_time) - new Date()) / 1000
-                );
+                const now = new Date();
+                const start = new Date(tournament.start_time);
+                const diff = Math.floor((start - now) / 1000);
 
                 if (diff > 0) {
                     setCountdown(diff);
@@ -142,116 +130,118 @@ export default function Game() {
                 } else {
                     setCountdown(0);
                     setCanPlay(true);
+                    setTimeLeft(300);
                     clearInterval(timer);
                 }
-
             }, 1000);
-
             return () => clearInterval(timer);
         }
 
-        // Tournament active → allow play
         if (tournament.status === "active") {
-            setCanPlay(true);
-        }
+            const totalDuration = 300;
+            const now = new Date().getTime();
+            const start = new Date(tournament.start_time).getTime();
+            const secondsElapsed = Math.floor((now - start) / 1000);
+            const remaining = totalDuration - secondsElapsed;
 
+            if (remaining > 0) {
+                setTimeLeft(remaining);
+                setCanPlay(true);
+            } else {
+                setTimeLeft(0);
+                setCanPlay(false);
+                setHasPlayedThisRound(true);
+            }
+        }
     }, [tournament]);
 
-
-    /* ---------- Countdown to Start ---------- */
     useEffect(() => {
-        if (!startTime) return;
-
+        if (hasWon || !canPlay || timeLeft <= 0) return;
         const timer = setInterval(() => {
-
-            const diff =
-                Math.floor((startTime - new Date(Date.now() + 10000)) / 1000);
-
-            console.log("Countdown:", diff); // DEBUG
-
-            if (diff <= 0) {
-                setCountdown(0);
-                clearInterval(timer);
-            } else {
-                setCountdown(diff);
-            }
-
-        }, 1000);
-
-        return () => clearInterval(timer);
-
-    }, [startTime]);
-
-    /* ---------- Start Game ---------- */
-    useEffect(() => {
-        startGame();
-    }, []);
-    /* ---------- Countdown Logic ---------- */
-    useEffect(() => {
-        if (hasWon || countdown > 0) return;
-
-        const timer = setInterval(() => {
-
             setTimeLeft((t) => {
-
                 if (t <= 1) {
                     clearInterval(timer);
+                    setCanPlay(false);
                     finishGame();
                     return 0;
                 }
-
                 return t - 1;
             });
-
         }, 1000);
-
         return () => clearInterval(timer);
+    }, [hasWon, canPlay, timeLeft]);
 
-    }, [hasWon, countdown]);
+    useEffect(() => {
+        async function checkPlayStatus() {
+            if (!tournament || !token) return;
+            const res = await fetch(`${API}/api/tournament/my-status`, {
+                headers: { Authorization: "Bearer " + token }
+            });
+            const data = await res.json();
+            if (data.hasSubmitted) {
+                setHasPlayedThisRound(true);
+                setCanPlay(false);
+            }
+        }
+        checkPlayStatus();
+    }, [tournament, token]);
+
+    // ELIGIBILITY CHECK RIGHT HERE:
+    useEffect(() => {
+        async function verifyEligibility() {
+            // Everyone is allowed to play Round 1
+            if (!tournament || tournament.current_round === 1) return;
+
+            const res = await fetch(`${API}/api/tournament/check-eligibility`, {
+                headers: { Authorization: "Bearer " + token }
+            });
+
+            // If the server returns 403 or isEligible is false, stop the player
+            const data = await res.json();
+            if (!data.isEligible) {
+                setCanPlay(false);
+                setHasPlayedThisRound(true); // Effectively locks the UI with your existing logic
+                alert("You did not qualify for this round!");
+            }
+        }
+        verifyEligibility();
+    }, [tournament?.current_round, token]);
 
     async function startGame() {
         const res = await fetch(API + "/api/game/start", {
             method: "POST",
-            headers: {
-                Authorization: "Bearer " + token
-            }
+            headers: { Authorization: "Bearer " + token }
         });
-
         const data = await res.json();
         setGameId(data.gameId);
     }
 
-    /* ---------- Move Logic ---------- */
+    useEffect(() => {
+        if (token) startGame();
+    }, []);
+
     const moveDisk = (from, to) => {
         setTowers((prev) => {
             if (from === to) return prev;
-
             const fromTower = prev[from];
             const toTower = prev[to];
             if (fromTower.length === 0) return prev;
-
             const disk = fromTower[fromTower.length - 1];
             const top = toTower[toTower.length - 1];
             if (top && top < disk) return prev;
-
             const copy = prev.map((t) => [...t]);
             copy[from].pop();
             copy[to].push(disk);
-
             return copy;
         });
-
         setMoves((m) => m + 1);
         moveSound.currentTime = 0;
         moveSound.play();
         setHasStarted(true);
     };
 
-    /* ---------- Click ---------- */
     const handleTowerClick = (index) => {
-        if (!canPlay) return;
-        if (hasWon) return;
-
+        if (!canPlay || hasWon) return;
         if (selectedTower === null) {
             setSelectedTower(index);
         } else {
@@ -260,122 +250,119 @@ export default function Game() {
         }
     };
 
-    /* ---------- Win Check ---------- */
     useEffect(() => {
         if (towers[2]?.length === diskCount && moves > 0) {
             finishGame();
         }
     }, [towers]);
 
-    /* ---------- End Game ---------- */
     async function finishGame() {
         if (hasWon) return;
-
         setHasWon(true);
+        setHasPlayedThisRound(true);
+        setCanPlay(false);
         winSound.play();
-
-        // End normal game
-        const res = await fetch(API + "/api/game/end", {
+        await fetch(API + "/api/game/end", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: "Bearer " + token
             },
-            body: JSON.stringify({
-                gameId,
-                moves
-            })
+            body: JSON.stringify({ gameId, moves })
         });
-
-        // Send tournament result (use backend values)
+        const timeTaken = 300 - timeLeft;
         await fetch(API + "/api/tournament/result", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: "Bearer " + token
             },
-            body: JSON.stringify({
-                score: data.score,
-                time: data.timeTaken
-            })
+            body: JSON.stringify({ score: moves, time: timeTaken })
         });
     }
 
     return (
         <Layout>
-
-            <div className="app">
-
+            <div className="app" style={{ textAlign: "center" }}> {/* Centers the text items */}
                 <h1>Tower of Hanoi</h1>
-                {/* STARTING SOON */}
+
+                {/* 1. TOURNAMENT STATUS MESSAGES */}
+                {!tournament && (
+                    <h2>No active tournament</h2>
+                )}
+
+                {tournament?.status === "ended" && (
+                    <h2 className="ended">Tournament Ended</h2>
+                )}
+
+                {/* 2. COUNTDOWN TO START */}
                 {tournament && countdown > 0 && (
                     <h2 className="countdown">
                         Round starts in: {formatTime(countdown)}
                     </h2>
                 )}
 
-                {/* NO TOURNAMENT */}
-                {!tournament && (
-                    <h2>No active tournament</h2>
-                )}
-                {tournament?.status === "ended" && (
-                    <h2 className="ended">Tournament Ended</h2>
+                {/* 3. POST-GAME STATES */}
+                {timeLeft === 0 && !hasWon && !hasPlayedThisRound && (
+                    <h2 style={{ color: "#ef4444" }}>Time's Up! Game Over.</h2>
                 )}
 
-                <>
-                    {canPlay && (
-                        <>
-                            {countdown === 0 && (
-                                <h3>
-                                    Time Left: {Math.floor(timeLeft / 60)}:
-                                    {(timeLeft % 60).toString().padStart(2, "0")}
-                                </h3>
-                            )}
-                            <p className="stats">
-                                Moves: <strong>{moves}</strong> | Minimum:{" "}
-                                <strong>{Math.pow(2, diskCount) - 1}</strong>
-                            </p>
+                {hasWon && (
+                    <>
+                        <Confetti width={width} height={height} numberOfPieces={250} />
+                        <motion.h2
+                            className="win"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: "spring", stiffness: 200 }}
+                        >
+                            🎉 You Won! <a href="/leaderboard">View Leaderboard</a>
+                        </motion.h2>
+                    </>
+                )}
 
-                            {hasWon && (
-                                <>
-                                    {/* Confetti */}
-                                    <Confetti
-                                        width={width}
-                                        height={height}
-                                        numberOfPieces={250}
+                {/* 4. LOCK SCREEN */}
+                {hasPlayedThisRound && !hasWon && (
+                    <div className="center-card" style={{ margin: "0 auto" }}>
+                        <h2 style={{ color: "#facc15" }}>Round Completed</h2>
+                        <p>You have already submitted your score for this round.</p>
+                        <p>
+                            Please wait for <strong>Round {(tournament?.current_round || 0) + 1}</strong> to begin.
+                        </p>
+                        <a href="/leaderboard">
+                            <button style={{ marginTop: "20px" }}>View Standings</button>
+                        </a>
+                    </div>
+                )}
+
+                {/* 5. ACTIVE GAMEPLAY INTERFACE */}
+                {canPlay && !hasPlayedThisRound && (
+                    <>
+                        {countdown === 0 && (
+                            <h3>Time Left: {formatTime(timeLeft)}</h3>
+                        )}
+
+                        <p className="stats">
+                            Moves: <strong>{moves}</strong> | Minimum:{" "}
+                            <strong>{Math.pow(2, diskCount) - 1}</strong>
+                        </p>
+
+                        <div className="game-card">
+                            <div className="game" style={{ display: "flex", justifyContent: "center", gap: "20px", marginTop: "50px" }}>
+                                {towers.map((tower, i) => (
+                                    <Tower
+                                        key={i}
+                                        disks={tower}
+                                        selected={selectedTower === i}
+                                        isGoal={i === 2}
+                                        onClick={() => handleTowerClick(i)}
                                     />
-
-                                    {/* Win Message */}
-                                    <motion.h2
-                                        className="win"
-                                        initial={{ scale: 0 }}
-                                        animate={{ scale: 1 }}
-                                        transition={{ type: "spring", stiffness: 200 }}
-                                    >
-                                        🎉 You Won!{" "}
-                                        <a href="/leaderboard">View Leaderboard</a>
-                                    </motion.h2>
-                                </>
-                            )}
-                            < div className="game-card">
-                                <div className="game">
-                                    {towers.map((tower, i) => (
-                                        <Tower
-                                            key={i}
-                                            disks={tower}
-                                            selected={selectedTower === i}
-                                            isGoal={i === 2}
-                                            onClick={() => handleTowerClick(i)}
-                                        />
-                                    ))}
-                                </div>
+                                ))}
                             </div>
-                        </>
-                    )}
-                </>
-
+                        </div>
+                    </>
+                )}
             </div>
-
-        </Layout >
+        </Layout>
     );
 }

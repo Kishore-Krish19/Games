@@ -1,9 +1,8 @@
 const db = require("../config/db");
 
 // TOP PLAYERS
-exports.getLeaderboard = (req, res) => {
+exports.getLeaderboard = async (req, res) => {
   const limit = 50;
-
   const sql = `
     SELECT 
       u.username,
@@ -18,17 +17,17 @@ exports.getLeaderboard = (req, res) => {
     LIMIT ?
   `;
 
-  db.query(sql, [limit], (err, result) => {
-    if (err) return res.status(500).json(err);
-
+  try {
+    const [result] = await db.query(sql, [limit]);
     res.json(result);
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
 // MY RANK
-exports.getMyRank = (req, res) => {
+exports.getMyRank = async (req, res) => {
   const userId = req.user.id;
-
   const sql = `
     SELECT rank FROM (
       SELECT 
@@ -41,13 +40,11 @@ exports.getMyRank = (req, res) => {
     WHERE id = ?
   `;
 
-  db.query(sql, [userId], (err, result) => {
-    if (err) return res.status(500).json(err);
-
-    if (result.length === 0) {
-      return res.json({ rank: null });
-    }
-
+  try {
+    const [result] = await db.query(sql, [userId]);
+    if (result.length === 0) return res.json({ rank: null });
     res.json({ rank: result[0].rank });
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };

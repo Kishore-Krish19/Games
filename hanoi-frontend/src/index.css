@@ -18,16 +18,15 @@ a {
   color: #646cff;
   text-decoration: inherit;
 }
+
 a:hover {
   color: #535bf2;
 }
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
   min-height: 100vh;
+  background: radial-gradient(circle at top, #020617, #000);
 }
 
 h1 {
@@ -46,9 +45,11 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
 button:hover {
   border-color: #646cff;
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -59,9 +60,11 @@ button:focus-visible {
     color: #213547;
     background-color: #ffffff;
   }
+
   a:hover {
     color: #747bff;
   }
+
   button {
     background-color: #f9f9f9;
   }
@@ -87,15 +90,83 @@ button {
 button:hover {
   background: #16a34a;
 }
+
+/* BACKGROUND OVERLAY */
+
+.main::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+
+  background:
+    radial-gradient(circle at top, rgba(56, 189, 248, 0.15), transparent 60%),
+    radial-gradient(circle at bottom, rgba(250, 204, 21, 0.1), transparent 60%);
+
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ===== MAIN CONTENT AREA (below navbar) ===== */
+.main {
+  min-height: calc(100vh - 70px);
+  /* 70px = approximate navbar height */
+
+  display: flex;
+  justify-content: center;
+  /* Horizontal center */
+  align-items: center;
+  /* Vertical center */
+
+  width: 100%;
+  padding: 20px;
+}
+
+/* ===== GLASS CARD UI ===== */
+.center-card {
+  background: rgba(2, 6, 23, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 35px 40px;
+
+  width: 100%;
+  max-width: 420px;
+
+  box-shadow:
+    0 0 30px rgba(56, 189, 248, 0.15),
+    inset 0 0 10px rgba(255, 255, 255, 0.05);
+
+  text-align: center;
+}
+
+/* ===== NAVBAR STYLING ===== */
+.navbar {
+  height: 70px;
+  /* Define explicit height */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 30px;
+  background: rgba(2, 6, 23, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  /* Not fixed, so it takes up space */
+}
+
 /* --- HANOI GAME FIX --- */
 
 .game {
   display: flex;
   justify-content: center;
   align-items: flex-end;
+
   gap: 80px;
-  margin-top: 40px;
+
+  width: 100%;
+  max-width: 900px;
+
+  margin: 0 auto;
 }
+
 
 .tower {
   width: 180px;
@@ -136,13 +207,33 @@ button:hover {
   max-width: 95%;
 }
 
-.disk[data-size="1"] { background: #22c55e; }
-.disk[data-size="2"] { background: #3b82f6; }
-.disk[data-size="3"] { background: #6366f1; }
-.disk[data-size="4"] { background: #8b5cf6; }
-.disk[data-size="5"] { background: #ec4899; }
-.disk[data-size="6"] { background: #f97316; }
-.disk[data-size="7"] { background: #ef4444; }
+.disk[data-size="1"] {
+  background: #22c55e;
+}
+
+.disk[data-size="2"] {
+  background: #3b82f6;
+}
+
+.disk[data-size="3"] {
+  background: #6366f1;
+}
+
+.disk[data-size="4"] {
+  background: #8b5cf6;
+}
+
+.disk[data-size="5"] {
+  background: #ec4899;
+}
+
+.disk[data-size="6"] {
+  background: #f97316;
+}
+
+.disk[data-size="7"] {
+  background: #ef4444;
+}
 
 .goal {
   border-color: #facc15;
@@ -152,10 +243,14 @@ button:hover {
 .selected {
   outline: 3px solid #facc15;
 }
-/* ===== NAVBAR ===== */
 
+/* ===== NAVBAR ===== */
+/* 
 .navbar {
-  background: #020617;
+  background: linear-gradient(180deg, #020617, #000);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 15px rgba(56,189,248,0.15);
+
   padding: 14px 25px;
 
   display: flex;
@@ -163,7 +258,7 @@ button:hover {
   align-items: center;
 
   border-bottom: 1px solid #1e293b;
-}
+} */
 
 .logo {
   color: #38bdf8;
@@ -195,13 +290,6 @@ button:hover {
   cursor: pointer;
 }
 
-
-/* ===== MAIN ===== */
-
-.main {
-  padding: 25px;
-}
-
 /* ===== BUTTON ANIMATIONS ===== */
 
 button {
@@ -210,7 +298,7 @@ button {
 
 button:hover {
   transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 button:active {
@@ -220,21 +308,25 @@ button:active {
 /* ===== SKELETON ===== */
 
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    #1e293b 25%,
-    #334155 37%,
-    #1e293b 63%
-  );
+  background: linear-gradient(90deg,
+      #1e293b 25%,
+      #334155 37%,
+      #1e293b 63%);
   background-size: 400% 100%;
   animation: skeleton 1.4s ease infinite;
   border-radius: 6px;
 }
 
 @keyframes skeleton {
-  0% { background-position: 100% 0 }
-  100% { background-position: -100% 0 }
+  0% {
+    background-position: 100% 0
+  }
+
+  100% {
+    background-position: -100% 0
+  }
 }
+
 .countdown {
   font-size: 28px;
   color: #facc15;
@@ -242,7 +334,136 @@ button:active {
 }
 
 @keyframes pulse {
-  0% { opacity: 1 }
-  50% { opacity: 0.5 }
-  100% { opacity: 1 }
+  0% {
+    opacity: 1
+  }
+
+  50% {
+    opacity: 0.5
+  }
+
+  100% {
+    opacity: 1
+  }
+}
+
+/* ===== ADMIN PAGE STYLING ===== */
+/* Container for the Admin content to keep it centered but left-aligned internally */
+.admin-container {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: left;
+  /* Headers stay left, buttons align via flex */
+}
+
+/* Flex row for buttons and inputs */
+.admin-row {
+  display: flex;
+  flex-wrap: wrap;
+  /* Allows wrapping on small screens */
+  gap: 15px;
+  /* Even spacing between all elements */
+  align-items: center;
+  /* Vertical alignment */
+  margin-bottom: 20px;
+}
+
+/* Ensure inputs and selects have consistent height */
+.admin-row input,
+.admin-row select,
+.admin-row button {
+  height: 42px;
+  margin: 0;
+  /* Reset margins to rely on 'gap' */
+  box-sizing: border-box;
+}
+
+/* Specific styling for the table to ensure it doesn't look cramped */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+th,
+td {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px;
+}
+
+/* ===== BRACKET PAGE STYLING ===== */
+.bracket-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  padding-top: 60px;
+}
+
+.round-section {
+  margin-bottom: 40px;
+  width: 100%;
+  max-width: 600px;
+}
+
+/* Table Styling */
+.bracket-table {
+  width: 100%;
+  max-width: 800px;
+  border-collapse: collapse;
+  background: rgba(2, 6, 23, 0.6);
+  /* Glass effect */
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 20px auto;
+}
+
+.bracket-table th,
+.bracket-table td {
+  padding: 12px 15px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bracket-table th {
+  background: rgba(56, 189, 248, 0.1);
+  color: #38bdf8;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+}
+
+/* Rank highlighting for top 3 */
+.bracket-table tr:nth-child(1) td:first-child {
+  color: #facc15;
+  font-weight: bold;
+}
+
+/* Gold */
+.bracket-table tr:nth-child(2) td:first-child {
+  color: #94a3b8;
+  font-weight: bold;
+}
+
+/* Silver */
+.bracket-table tr:nth-child(3) td:first-child {
+  color: #b45309;
+  font-weight: bold;
+}
+
+/* Bronze */
+
+.bracket-table tr:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Ensures no bullets appear if any <ul> remains */
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
 }
