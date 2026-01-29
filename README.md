@@ -1,4 +1,4 @@
-# 🏆 Hanoi Arena – Multiplayer Tower of Hanoi Tournament System
+# 🏆 Hanoi Arena – Multiplayer Tower of Hanoi Tournament System (localhost Version)
 
 Hanoi Arena is a full-stack web application that allows multiple players to participate in Tower of Hanoi tournaments in real time.  
 It includes authentication, admin controls, tournament scheduling, live leaderboard, and secure gameplay.
